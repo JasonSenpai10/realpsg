@@ -8,8 +8,8 @@ class Detail {
   final String photo;
   Detail({
     this.id,
-    required this.latitude,
-    required this.longitude,
+    this.latitude = '',
+    this.longitude = '',
     required this.type,
     required this.price,
     required this.details,

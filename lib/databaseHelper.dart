@@ -28,7 +28,7 @@ CREATE TABLE details(
   type TEXT,
   price TEXT,
   details TEXT,
-  photo TEXT
+  photo TEXT,
 )
 ''');
   }
@@ -37,6 +37,7 @@ CREATE TABLE details(
     // Directory documentsDirectory = await getApplicationDocumentsDirectory();
     // String path = join(documentsDirectory.path, 'details.db');
     // databaseFactory.deleteDatabase(path);
+
     Database db = await instance.database;
     var details = await db.query('details', orderBy: 'id');
     List<Detail> detailList = details.isNotEmpty

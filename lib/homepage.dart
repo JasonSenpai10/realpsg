@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:custom_info_window/custom_info_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/data.dart';
@@ -46,12 +47,13 @@ class _HomepageState extends State<Homepage> {
     // loadData();
   }
 
+  XFile? file;
   pickImageFromGallery() async {
-    var imgFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    final bytes = await imgFile!.readAsBytes();
-    final base64 = base64Encode(bytes);
-    photo = base64.toString();
-    print(photo);
+    // var imgFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    // final bytes = await imgFile!.readAsBytes();
+    // final base64 = base64Encode(bytes);
+    // photo = base64.toString();
+
     setState(() {});
   }
 
@@ -127,12 +129,24 @@ class _HomepageState extends State<Homepage> {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) => Details(
-                                                    type:
-                                                        element.type.toString(),
-                                                    price: element.price
+                                                    id: element.id,
+                                                    latitude: LatLng(
+                                                            double.parse(element
+                                                                .latitude),
+                                                            double.parse(element
+                                                                .longitude))
+                                                        .latitude
                                                         .toString(),
-                                                    details: element.details
+                                                    longitude: LatLng(
+                                                            double.parse(element
+                                                                .latitude),
+                                                            double.parse(element
+                                                                .longitude))
+                                                        .longitude
                                                         .toString(),
+                                                    type: element.type.toString(),
+                                                    price: element.price.toString(),
+                                                    details: element.details.toString(),
                                                     photo: element.photo)));
                                       },
                                     ),
@@ -145,13 +159,11 @@ class _HomepageState extends State<Homepage> {
                                             setState(() {
                                               DataBaseHelper.instance
                                                   .remove(element.id!);
+                                              _customInfoWindowController
+                                                  .hideInfoWindow!();
                                             });
                                           },
-                                          child: const Text('Delete'),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          child: const Text('Edit'),
+                                          child: const Icon(Icons.delete),
                                         ),
                                       ],
                                     )
@@ -173,60 +185,89 @@ class _HomepageState extends State<Homepage> {
                       onTap: (LatLng latlng) async {
                         AlertDialog alert = AlertDialog(
                           title: Text('Detail form'),
-                          content: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            reverse: true,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                TextField(
-                                  controller: typeController,
-                                  decoration:
-                                      InputDecoration(hintText: 'Type '),
-                                  maxLines: 5,
-                                  minLines: 1,
-                                ),
-                                TextField(
-                                  controller: priceController,
-                                  decoration:
-                                      InputDecoration(hintText: 'Price '),
-                                  maxLines: 5,
-                                  minLines: 1,
-                                ),
-                                TextField(
-                                  controller: detailsController,
-                                  decoration:
-                                      InputDecoration(hintText: 'More details'),
-                                  maxLines: 10,
-                                  minLines: 1,
-                                ),
-                                Container(
-                                  height: 100,
-                                  width: 200,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(width: 1),
-                                      image: DecorationImage(
-                                          image: MemoryImage(
-                                              base64Decode(photo.toString())))),
-                                  child: TextButton(
-                                      onPressed: () {
-                                        pickImageFromGallery();
-                                      },
-                                      child: Text('Photo')
+                          content:
+                              StatefulBuilder(builder: (context, setState) {
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              reverse: true,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    controller: typeController,
+                                    decoration:
+                                        InputDecoration(hintText: 'Type '),
+                                    maxLines: 5,
+                                    minLines: 1,
+                                  ),
+                                  TextField(
+                                    controller: priceController,
+                                    decoration:
+                                        InputDecoration(hintText: 'Price '),
+                                    maxLines: 5,
+                                    minLines: 1,
+                                  ),
+                                  TextField(
+                                    controller: detailsController,
+                                    decoration: InputDecoration(
+                                        hintText: 'More details'),
+                                    maxLines: 10,
+                                    minLines: 1,
+                                  ),
+                                  InkWell(
+                                    onTap: () async {
+                                      final ImagePicker _picker = ImagePicker();
+                                      XFile? image = await _picker.pickImage(
+                                          source: ImageSource.gallery);
+                                      if (image != null) {
+                                        // var selected = XFile(image.path);
 
-                                      //: Image.memory(base64Decode(photo)),
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
+                                        final bytes = await image.readAsBytes();
+                                        final base64 = base64Encode(bytes);
+                                        photo = base64.toString();
+
+                                        setState(() {
+                                          file = XFile(image.path);
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 100,
+                                      width: 200,
+                                      // decoration: BoxDecoration(
+                                      //     border: Border.all(width: 1),
+                                      //     image: file == null
+                                      //         ? null
+                                      //         : DecorationImage(
+                                      //             image: FileImage(File(file!.path)
+                                      //                 // base64Decode(photo.toString())
+                                      //                 ))),
+                                      child: file == null
+                                          ? Text("photo")
+                                          : Image.file(File(file!.path)
+
+                                              // onPressed: () {
+                                              //   pickImageFromGallery();
+                                              // },
+                                              // child: Text('Photo')
+
+                                              //: Image.memory(base64Decode(photo)),
+                                              ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                           actions: [
                             TextButton(
                                 onPressed: () {
                                   typeController.clear();
                                   priceController.clear();
                                   detailsController.clear();
-                                  //photo = '';
+                                  photo = '';
+                                  file = null;
+
                                   Navigator.pop(context, 'Cancel');
                                 },
                                 child: Text('Cancel')),
@@ -254,7 +295,8 @@ class _HomepageState extends State<Homepage> {
                                   typeController.clear();
                                   priceController.clear();
                                   detailsController.clear();
-                                  //photo = '';
+                                  photo = '';
+                                  file = null;
                                   Navigator.pop(context);
                                   setState(() {});
                                 },
