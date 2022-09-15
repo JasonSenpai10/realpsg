@@ -5,7 +5,6 @@ class Detail {
   final String type;
   final String price;
   final String details;
-  final String photo;
   Detail({
     this.id,
     this.latitude = '',
@@ -13,7 +12,6 @@ class Detail {
     required this.type,
     required this.price,
     required this.details,
-    required this.photo,
   });
   factory Detail.fromMap(Map<String, dynamic> json) => Detail(
         id: json['id'],
@@ -22,7 +20,6 @@ class Detail {
         type: json['type'],
         price: json['price'],
         details: json['details'] ?? '',
-        photo: json['photo'],
       );
   Map<String, dynamic> toMap() {
     return {
@@ -32,7 +29,27 @@ class Detail {
       'type': type,
       'price': price,
       'details': details,
-      'photo': photo,
+    };
+  }
+}
+
+class Photo {
+  final int? id;
+  final int detailId;
+  final String name;
+
+  Photo({this.id, required this.detailId, required this.name});
+
+  factory Photo.fromMap(Map<String, dynamic> json) => Photo(
+        id: json['id'],
+        detailId: json['detailId'],
+        name: json['name'],
+      );
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'detailId': detailId,
+      'name': name,
     };
   }
 }
