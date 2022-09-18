@@ -1,10 +1,16 @@
 import 'dart:io';
 import 'package:flutter_application_1/data.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DataBaseHelper {
+  static const DB_NAME = 'maps.db';
+  static const DB_PATH =
+      "/data/user/0/com.example.flutter_application_1/app_flutter";
+  static const DIRECTORY_PATH =
+      "/storage/emulated/0/Android/data/com.example.flutter_application_1/files";
   DataBaseHelper._privateConstructor();
   static final DataBaseHelper instance = DataBaseHelper._privateConstructor();
   static Database? _database;
@@ -101,5 +107,27 @@ CREATE TABLE photos(
     List<Photo> listPhotos =
         photos.isNotEmpty ? photos.map((e) => Photo.fromMap(e)).toList() : [];
     return listPhotos;
+  }
+
+  void exportDatabase() async {
+    var status = await Permission.manageExternalStorage.status;
+    if (!status.isGranted) {
+      await Permission.manageExternalStorage.request();
+    }
+
+    var status1 = await Permission.storage.status;
+
+    if (!status1.isGranted) {
+      await Permission.storage.request();
+    }
+
+    try {
+      File ourDbFile = File(DB_PATH + '/' + DB_NAME);
+      Directory folderPathForDBFile = Directory(DIRECTORY_PATH);
+      await folderPathForDBFile.create();
+      await ourDbFile.copy("/storage/emulated/0/Download/maps.db");
+    } catch (e) {
+      print(e);
+    }
   }
 }

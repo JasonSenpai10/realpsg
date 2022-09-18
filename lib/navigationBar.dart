@@ -1,4 +1,6 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/databaseHelper.dart';
 import 'package:flutter_application_1/homepage.dart';
 
 class Navbar extends StatefulWidget {
@@ -46,10 +48,19 @@ class _NavbarState extends State<Navbar> {
                   Icons.upload,
                 ),
                 title: const Text('Export'),
-                onTap: () {},
+                onTap: () {
+                  DataBaseHelper.instance.exportDatabase();
+                  const snackBar = SnackBar(
+                    content: Text(
+                      'Database Has Beed Exported To Downloads Folder Successfully',
+                      style: TextStyle(color: Colors.green),
+                    ),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
               ),
               ListTile(
-                leading: Icon(Icons.add_to_home_screen_outlined),
+                leading: const Icon(Icons.add_to_home_screen_outlined),
                 title: const Text('Import'),
                 onTap: () {
                   //Navigator.pop(context);
